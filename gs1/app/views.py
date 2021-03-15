@@ -30,7 +30,7 @@ class Index(View):
             stu  = Student.objects.get(id=id)
             serializer = StudentSerializer(stu)
             return JsonResponse(serializer.data)
-
+          
     def post(self,request):
         json_data= request.body
         stream = io.BytesIO(json_data)
@@ -41,12 +41,12 @@ class Index(View):
             res = {'msg':'data has been inserted'}
             json_data  = JSONRenderer().render(res)
             return HttpResponse(json_data,content_type='application/json')
-        json_data = JsonResponse().render()
+        json_data =JSONRenderer().render(serializers.errors)
         return HttpResponse(json_data,content_type='application/json')
 
     def  put(self,request):
         json_data = request.body
-        stream = io.BytesIO(stream)
+        stream = io.BytesIO(json_data)
         python_data = JSONParser().parse(stream)
         id  = python_data.get('id')
         stu = Student.objects.get(id =id)
@@ -54,10 +54,25 @@ class Index(View):
         if serializer.is_valid():
             serializer.save()
             res = {'msg':'data updated successfully'}
-            return JsonResponse(res,safe=False)
+            json_data = JSONRenderer().render(res)
+            return HttpResponse(json_data,content_type='application/json')
+        json_data = JSONRenderer().render(serializer.errors)
+        return HttpResponse(json_data,content_type='application/json')
+#########################
+
+#########################
+
+
+    def delete(self,request):
+        json_data = request.body
+        stream = io.BytesIO(json_data)
+        python_data = JSONParser().parse(stream)
+        id = python_data.get('id')
+        stu = Student.objects.get(id=id)
+        stu.delete()
+        res = {'msg':"'data deleted"}
+        return JsonResponse(res,safe=False)
 
 
             
-        
-
     
